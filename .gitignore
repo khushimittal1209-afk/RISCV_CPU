@@ -1,0 +1,13 @@
+# Simulation outputs
+*.vcd
+*.vvp
+*_sim
+
+# Build directory
+sim/build/
+
+# Waveforms
+sim/waves/
+
+# VS Code
+.vscode/
