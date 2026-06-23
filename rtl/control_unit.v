@@ -3,6 +3,7 @@ module control_unit(
     input [2:0] funct3,
     input [6:0] funct7,
 
+    output reg branch,
     output reg reg_write,
     output reg alu_src,
     output reg mem_read,
@@ -15,6 +16,12 @@ module control_unit(
           XOR = 3'b100;
 always @(*)
 begin
+    branch = 0;
+    reg_write = 0;
+    alu_src = 0;
+    mem_read = 0;
+    mem_write = 0;
+    alu_control = ADD;
     case(opcode)
     7'b0110011:
     begin
@@ -66,6 +73,15 @@ begin
         mem_write = 1;
         alu_control = ADD;
     end
+    7'b1100011:
+    begin
+    branch = 1;
+    reg_write = 0;
+    alu_src = 0;
+    mem_read = 0;
+    mem_write = 0;
+    alu_control = SUB;
+end
     default:
 begin
     reg_write  = 0;

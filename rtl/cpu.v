@@ -12,6 +12,8 @@ wire alu_src;
 wire mem_read;
 wire mem_write;
 wire [2:0] alu_control;
+wire branch;
+wire zero;
 
 wire [31:0] imm_out;
 
@@ -24,7 +26,9 @@ wire [31:0] alu_result;
 wire [31:0] mem_data;
 wire [31:0] write_back_data;
 // PC
-assign next_pc = pc_current + 4;
+wire branch_taken;
+assign branch_taken = branch && zero;
+assign next_pc =(branch_taken) ?pc_current + imm_out :pc_current + 4;
 
 pc pc_inst(
     .clk(clk),
@@ -42,6 +46,7 @@ control_unit cu(
     .opcode(instruction[6:0]),
     .funct3(instruction[14:12]),
     .funct7(instruction[31:25]),
+    .branch(branch),
     .reg_write(reg_write),
     .alu_src(alu_src),
     .mem_read(mem_read),
@@ -76,7 +81,8 @@ alu alu_inst(
     .a(rs1_data),
     .b(alu_b),
     .control_signal(alu_control),
-    .result(alu_result)
+    .result(alu_result),
+    .zero(zero)
 );
 // Data Memory
 data_memory dmem(

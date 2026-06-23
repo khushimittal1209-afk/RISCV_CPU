@@ -31,7 +31,7 @@ initial begin
     );
 end
 initial begin
-    #50;
+    #100;
     $display("x1 = %0d", dut.rf.reg_mem[1]);
     $display("x2 = %0d", dut.rf.reg_mem[2]);
     $display("x3 = %0d", dut.rf.reg_mem[3]);
