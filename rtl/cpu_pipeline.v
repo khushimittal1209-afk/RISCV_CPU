@@ -19,6 +19,8 @@ wire idex_mem_read;
 wire idex_mem_write;
 wire idex_mem_to_reg;
 wire idex_alu_src;
+wire [4:0] idex_rs1_addr;
+wire [4:0] idex_rs2_addr;
  
 wire [31:0] exmem_alu_result;
 wire [31:0] exmem_rs2_data;
@@ -45,6 +47,11 @@ wire branch_ne;
 wire jal;
 wire lui;
 wire auipc;
+
+wire [1:0] forward_a;
+wire [1:0] forward_b;
+wire [31:0] alu_in1;
+wire [31:0] alu_in2_pre_mux;
 
 wire [31:0] imm_out;
 
@@ -86,6 +93,10 @@ id_ex idex_reg(
     .rs1_data_in(rs1_data),
     .rs2_data_in(rs2_data),
     .imm_in(imm_out),
+    .rs1_addr_in(ifid_instruction[19:15]),
+    .rs2_addr_in(ifid_instruction[24:20]),
+    .rs1_addr_out(idex_rs1_addr),
+    .rs2_addr_out(idex_rs2_addr),
 
     .rd_in(ifid_instruction[11:7]),
 
@@ -157,6 +168,20 @@ mem_wb memwb_reg(
     .reg_write_out(memwb_reg_write),
     .mem_to_reg_out(memwb_mem_to_reg)
 );
+//Forwarding unit
+forwarding_unit fu(
+    .idex_rs1(idex_rs1_addr),
+    .idex_rs2(idex_rs2_addr),
+
+    .exmem_rd(exmem_rd),
+    .memwb_rd(memwb_rd),
+
+    .exmem_reg_write(exmem_reg_write),
+    .memwb_reg_write(memwb_reg_write),
+
+    .forward_a(forward_a),
+    .forward_b(forward_b)
+);
 // Instruction Memory
 instruction_memory imem(
     .address(pc_current),
@@ -198,12 +223,13 @@ regfile rf(
     .rs1_data(rs1_data),
     .rs2_data(rs2_data)
 );
+assign alu_in1 =(forward_a == 2'b10) ? exmem_alu_result :(forward_a == 2'b01) ? write_back_data :idex_rs1_data;
+assign alu_in2_pre_mux =(forward_b == 2'b10) ? exmem_alu_result :(forward_b == 2'b01) ? write_back_data :idex_rs2_data;
 // ALU Input MUX
-assign alu_b = (idex_alu_src) ? idex_imm : idex_rs2_data;
-
+assign alu_b = (idex_alu_src) ? idex_imm : alu_in2_pre_mux;
 // ALU
 alu alu_inst(
-    .a(idex_rs1_data),
+    .a(alu_in1),
     .b(alu_b),
     .control_signal(idex_alu_control),
     .result(alu_result),

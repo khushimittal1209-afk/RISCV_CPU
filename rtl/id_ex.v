@@ -5,9 +5,9 @@ module id_ex(
     input [31:0] rs1_data_in,
     input [31:0] rs2_data_in,
     input [31:0] imm_in,
-
+    input [4:0] rs1_addr_in,
+    input [4:0] rs2_addr_in,
     input [4:0] rd_in,
-
     input [3:0] alu_control_in,
 
     input reg_write_in,
@@ -18,10 +18,10 @@ module id_ex(
 
     output reg [31:0] rs1_data_out,
     output reg [31:0] rs2_data_out,
+    output reg [4:0] rs1_addr_out,
+    output reg [4:0] rs2_addr_out,
     output reg [31:0] imm_out,
-
     output reg [4:0] rd_out,
-
     output reg [3:0] alu_control_out,
 
     output reg reg_write_out,
@@ -38,6 +38,8 @@ begin
         rs1_data_out   <= 32'b0;
         rs2_data_out   <= 32'b0;
         imm_out        <= 32'b0;
+        rs1_addr_out <= 5'b0;
+        rs2_addr_out <= 5'b0;
 
         rd_out         <= 5'b0;
 
@@ -54,6 +56,8 @@ begin
         rs1_data_out   <= rs1_data_in;
         rs2_data_out   <= rs2_data_in;
         imm_out        <= imm_in;
+        rs1_addr_out <= rs1_addr_in;
+        rs2_addr_out <= rs2_addr_in;
 
         rd_out         <= rd_in;
 
