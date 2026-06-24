@@ -59,6 +59,14 @@ begin
         3'b111: alu_control = AND; // ANDI
         3'b110: alu_control = OR;  // ORI
         3'b100: alu_control = XOR; // XORI
+        3'b001: alu_control = SLL; // SLLI
+        3'b101:
+        begin
+            if(funct7 == 7'b0000000)
+                alu_control = SRL; // SRLI
+            else if(funct7 == 7'b0100000)
+                alu_control = SRA; // SRAI
+        end
         default:alu_control = ADD;
         endcase
     end
