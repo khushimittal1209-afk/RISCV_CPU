@@ -3,7 +3,7 @@ module cpu_tb;
 reg clk;
 reg reset;
 
-cpu dut(
+cpu_pipeline dut(
     .clk(clk),
     .reset(reset)
 );

@@ -8,7 +8,7 @@ module id_ex(
 
     input [4:0] rd_in,
 
-    input [2:0] alu_control_in,
+    input [3:0] alu_control_in,
 
     input reg_write_in,
     input mem_read_in,
