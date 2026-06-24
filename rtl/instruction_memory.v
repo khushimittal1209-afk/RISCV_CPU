@@ -5,13 +5,15 @@ module instruction_memory(
 
 reg [31:0] memory [0:255];
 initial begin
-memory[0] = 32'h00D00093; // addi x1,x0,13
+memory[0] = 32'h00500093; // addi x1,x0,5
 
-memory[1] = 32'h00F0F113; // andi x2,x1,15
+memory[1] = 32'h00200113; // addi x2,x0,2
 
-memory[2] = 32'h0040E193; // ori x3,x1,4
+memory[2] = 32'h002091B3; // sll x3,x1,x2
 
-memory[3] = 32'h0070C213; // xori x4,x1,7
+memory[3] = 32'h0020D233; // srl x4,x1,x2
+
+memory[4] = 32'h4020D2B3; // sra x5,x1,x2
 end
 
 

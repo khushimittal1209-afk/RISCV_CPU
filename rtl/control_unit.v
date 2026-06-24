@@ -42,6 +42,9 @@ begin
         {7'b0000000,3'b111}:alu_control = AND;
         {7'b0000000,3'b100}:alu_control = XOR;
         {7'b0000000,3'b010}: alu_control = SLT;
+        {7'b0000000,3'b001}:alu_control = SLL;
+        {7'b0000000,3'b101}:alu_control = SRL;
+        {7'b0100000,3'b101}:alu_control = SRA;
         default:alu_control = ADD;
         endcase
     end

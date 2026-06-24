@@ -29,6 +29,7 @@ initial begin
     $display("x2 = %0d", dut.rf.reg_mem[2]);
     $display("x3 = %0d", dut.rf.reg_mem[3]);
     $display("x4 = %0d", dut.rf.reg_mem[4]);
+    $display("x5 = %0d", dut.rf.reg_mem[5]);
 
     $finish;
 end
