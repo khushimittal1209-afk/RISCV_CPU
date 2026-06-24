@@ -5,6 +5,7 @@ module control_unit(
 
     output reg branch,
     output reg branch_ne,
+    output reg jal,
     output reg reg_write,
     output reg alu_src,
     output reg mem_read,
@@ -22,6 +23,7 @@ module control_unit(
 always @(*)
 begin
     branch = 0;
+    jal = 0;
     branch_ne = 0;
     reg_write = 0;
     alu_src = 0;
@@ -97,15 +99,20 @@ begin
     mem_read = 0;
     mem_write = 0;
     alu_control = SUB;
-end
+    end
+    7'b1101111:
+    begin
+    jal = 1;
+    reg_write = 1;
+    end
     default:
-begin
+    begin
     reg_write  = 0;
     alu_src    = 0;
     mem_read   = 0;
     mem_write  = 0;
     alu_control = ADD;
-end
+    end
     endcase
 end
 endmodule

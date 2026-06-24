@@ -5,18 +5,11 @@ module instruction_memory(
 
 reg [31:0] memory [0:255];
 initial begin
+memory[0] = 32'h008000EF; // jal x1,+8
 
-    // addi x1,x0,5
-    memory[0] = 32'h00500093;
+memory[1] = 32'h00100113; // addi x2,x0,1
 
-    // slli x2,x1,2
-    memory[1] = 32'h00209113;
-
-    // srli x3,x2,2
-    memory[2] = 32'h00215193;
-
-    // srai x4,x2,2
-    memory[3] = 32'h40215213;
+memory[2] = 32'h00200113; // addi x2,x0,2
 
 end
 

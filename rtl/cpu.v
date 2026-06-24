@@ -15,6 +15,7 @@ wire [3:0] alu_control;
 wire branch;
 wire zero;
 wire branch_ne;
+wire jal;
 
 wire [31:0] imm_out;
 
@@ -29,7 +30,7 @@ wire [31:0] write_back_data;
 // PC
 wire branch_taken;
 assign branch_taken =(branch    && zero) ||(branch_ne && !zero);
-assign next_pc =(branch_taken) ?pc_current + imm_out :pc_current + 4;
+assign next_pc =jal ? (pc_current + imm_out) :branch_taken ? (pc_current + imm_out) :(pc_current + 4);
 
 pc pc_inst(
     .clk(clk),
@@ -53,6 +54,7 @@ control_unit cu(
     .mem_read(mem_read),
     .mem_write(mem_write),
     .alu_control(alu_control),
+    .jal(jal),
     .branch_ne(branch_ne)
 );
 
@@ -98,6 +100,7 @@ data_memory dmem(
 
 // Write Back MUX
 assign write_back_data =
-        (mem_read) ? mem_data : alu_result;
+    jal ? (pc_current + 4) :
+    (mem_read ? mem_data : alu_result);
 
 endmodule
