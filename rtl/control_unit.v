@@ -6,6 +6,8 @@ module control_unit(
     output reg branch,
     output reg branch_ne,
     output reg jal,
+    output reg lui,
+    output reg auipc,
     output reg reg_write,
     output reg alu_src,
     output reg mem_read,
@@ -29,6 +31,8 @@ begin
     alu_src = 0;
     mem_read = 0;
     mem_write = 0;
+    lui = 0;
+    auipc = 0;
     alu_control = ADD;
     case(opcode)
     7'b0110011:
@@ -103,6 +107,16 @@ begin
     7'b1101111:
     begin
     jal = 1;
+    reg_write = 1;
+    end
+    7'b0110111:
+    begin
+    lui = 1;
+    reg_write = 1;
+    end
+    7'b0010111:
+    begin
+    auipc = 1;
     reg_write = 1;
     end
     default:

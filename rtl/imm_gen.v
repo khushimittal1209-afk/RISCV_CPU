@@ -17,6 +17,7 @@ begin
     instruction[20],
     instruction[30:21],
     1'b0};
+    7'b0110111,7'b0010111:imm_out = {instruction[31:12],12'b0};
     default:imm_out = 32'b0;
     endcase
 end

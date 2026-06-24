@@ -16,6 +16,8 @@ wire branch;
 wire zero;
 wire branch_ne;
 wire jal;
+wire lui;
+wire auipc;
 
 wire [31:0] imm_out;
 
@@ -55,6 +57,8 @@ control_unit cu(
     .mem_write(mem_write),
     .alu_control(alu_control),
     .jal(jal),
+    .lui(lui),
+    .auipc(auipc),
     .branch_ne(branch_ne)
 );
 
@@ -100,7 +104,9 @@ data_memory dmem(
 
 // Write Back MUX
 assign write_back_data =
-    jal ? (pc_current + 4) :
+    jal   ? (pc_current + 4) :
+    lui   ? imm_out :
+    auipc ? (pc_current + imm_out) :
     (mem_read ? mem_data : alu_result);
 
 endmodule
