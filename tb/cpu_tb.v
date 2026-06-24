@@ -23,22 +23,11 @@ initial begin
 end
 // Monitor
 initial begin
-    $monitor(
-        "t=%0t PC=%0d Instr=%h",
-        $time,
-        dut.pc_current,
-        dut.instruction
-    );
-end
-initial begin
     #100;
 
     $display("x1 = %0d", dut.rf.reg_mem[1]);
     $display("x2 = %0d", dut.rf.reg_mem[2]);
     $display("x3 = %0d", dut.rf.reg_mem[3]);
-    $display("x4 = %0d", dut.rf.reg_mem[4]);
-
-    $display("mem[0] = %0d", dut.dmem.memory[0]);
 
     $finish;
 end

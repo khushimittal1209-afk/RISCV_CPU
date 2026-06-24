@@ -5,16 +5,22 @@ module instruction_memory(
 
 reg [31:0] memory [0:255];
 initial begin
+
     // addi x1,x0,10
     memory[0] = 32'h00A00093;
+
     // addi x2,x0,20
     memory[1] = 32'h01400113;
-    // add x3,x1,x2
-    memory[2] = 32'h002081B3;
-    // sw x3,0(x0)
-    memory[3] = 32'h00302023;
-    // lw x4,0(x0)
-    memory[4] = 32'h00002203;
+
+    // bne x1,x2,+8
+    memory[2] = 32'h00209463;
+
+    // addi x3,x0,1
+    memory[3] = 32'h00100193;
+
+    // addi x3,x0,2
+    memory[4] = 32'h00200193;
+
 end
 
 

@@ -14,6 +14,7 @@ wire mem_write;
 wire [3:0] alu_control;
 wire branch;
 wire zero;
+wire branch_ne;
 
 wire [31:0] imm_out;
 
@@ -27,7 +28,7 @@ wire [31:0] mem_data;
 wire [31:0] write_back_data;
 // PC
 wire branch_taken;
-assign branch_taken = branch && zero;
+assign branch_taken =(branch    && zero) ||(branch_ne && !zero);
 assign next_pc =(branch_taken) ?pc_current + imm_out :pc_current + 4;
 
 pc pc_inst(
@@ -51,7 +52,8 @@ control_unit cu(
     .alu_src(alu_src),
     .mem_read(mem_read),
     .mem_write(mem_write),
-    .alu_control(alu_control)
+    .alu_control(alu_control),
+    .branch_ne(branch_ne)
 );
 
 // Immediate Generator
