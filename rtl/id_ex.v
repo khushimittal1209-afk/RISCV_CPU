@@ -22,7 +22,7 @@ module id_ex(
 
     output reg [4:0] rd_out,
 
-    output reg [2:0] alu_control_out,
+    output reg [3:0] alu_control_out,
 
     output reg reg_write_out,
     output reg mem_read_out,
@@ -41,7 +41,7 @@ begin
 
         rd_out         <= 5'b0;
 
-        alu_control_out <= 3'b0;
+        alu_control_out <= 4'b0;
 
         reg_write_out  <= 1'b0;
         mem_read_out   <= 1'b0;

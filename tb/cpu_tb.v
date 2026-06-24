@@ -18,18 +18,34 @@ initial begin
     #10;
     reset = 0;
 
-    #100;
+    #200;
     $finish;
 end
 // Monitor
+/*initial begin
+ $monitor(
+"t=%0t pc=%d inst=%h rd=%d alu=%d",
+$time,
+dut.pc_current,
+dut.ifid_instruction,
+dut.idex_rd,
+dut.alu_result
+);
+end*/
 initial begin
-    #100;
+    #200;
+$display("x1 = %d", dut.rf.reg_mem[1]);
+$display("x2 = %d", dut.rf.reg_mem[2]);
+$display("x3 = %d", dut.rf.reg_mem[3]);
 
-    $display("x1 = %0d", dut.rf.reg_mem[1]);
-    $display("x2 = %0d", dut.rf.reg_mem[2]);
-    $display("x3 = %0d", dut.rf.reg_mem[3]);
-   // $display("x4 = %0d", dut.rf.reg_mem[4]);
-   // $display("x5 = %0d", dut.rf.reg_mem[5]);
+/* $display("idex_rd    = %d", dut.idex_rd);
+$display("exmem_rd   = %d", dut.exmem_rd);
+$display("memwb_rd   = %d", dut.memwb_rd);
+
+$display("alu_result = %d", dut.alu_result);
+$display("exmem_alu  = %d", dut.exmem_alu_result);
+$display("memwb_alu  = %d", dut.memwb_alu_result);
+$display("idex_alu_ctrl = %b", dut.idex_alu_control);*/
 
     $finish;
 end

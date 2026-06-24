@@ -19,6 +19,20 @@ wire idex_mem_read;
 wire idex_mem_write;
 wire idex_mem_to_reg;
 wire idex_alu_src;
+ 
+wire [31:0] exmem_alu_result;
+wire [31:0] exmem_rs2_data;
+wire [4:0] exmem_rd;
+wire exmem_reg_write;
+wire exmem_mem_read;
+wire exmem_mem_write;
+wire exmem_mem_to_reg;
+
+wire [31:0] memwb_mem_data;
+wire [31:0] memwb_alu_result;
+wire [4:0] memwb_rd;
+wire memwb_reg_write;
+wire memwb_mem_to_reg;
 
 wire reg_write;
 wire alu_src;
@@ -97,6 +111,52 @@ id_ex idex_reg(
     .mem_to_reg_out(idex_mem_to_reg),
     .alu_src_out(idex_alu_src)
 );
+//EX/MEM pipeline register
+ex_mem exmem_reg(
+    .clk(clk),
+    .reset(reset),
+
+    .alu_result_in(alu_result),
+    .rs2_data_in(idex_rs2_data),
+
+    .rd_in(idex_rd),
+
+    .reg_write_in(idex_reg_write),
+    .mem_read_in(idex_mem_read),
+    .mem_write_in(idex_mem_write),
+    .mem_to_reg_in(idex_mem_to_reg),
+
+    .alu_result_out(exmem_alu_result),
+    .rs2_data_out(exmem_rs2_data),
+
+    .rd_out(exmem_rd),
+
+    .reg_write_out(exmem_reg_write),
+    .mem_read_out(exmem_mem_read),
+    .mem_write_out(exmem_mem_write),
+    .mem_to_reg_out(exmem_mem_to_reg)
+);
+//MEM/WB pipeline register
+mem_wb memwb_reg(
+    .clk(clk),
+    .reset(reset),
+
+    .memory_data_in(mem_data),
+    .alu_result_in(exmem_alu_result),
+
+    .rd_in(exmem_rd),
+
+    .reg_write_in(exmem_reg_write),
+    .mem_to_reg_in(exmem_mem_to_reg),
+
+    .memory_data_out(memwb_mem_data),
+    .alu_result_out(memwb_alu_result),
+
+    .rd_out(memwb_rd),
+
+    .reg_write_out(memwb_reg_write),
+    .mem_to_reg_out(memwb_mem_to_reg)
+);
 // Instruction Memory
 instruction_memory imem(
     .address(pc_current),
@@ -130,11 +190,11 @@ imm_gen imm(
 regfile rf(
     .rs1_addr(ifid_instruction[19:15]),
     .rs2_addr(ifid_instruction[24:20]),
-    .rd_addr(ifid_instruction[11:7]),
+    .rd_addr(memwb_rd),
+    .reg_write(memwb_reg_write),
     .clk(clk),
     .reset(reset),
     .rd_data(write_back_data),
-    .reg_write(idex_reg_write),
     .rs1_data(rs1_data),
     .rs2_data(rs2_data)
 );
@@ -152,18 +212,17 @@ alu alu_inst(
 // Data Memory
 data_memory dmem(
     .clk(clk),
-    .mem_read(idex_mem_read),
-    .mem_write(idex_mem_write),
-    .address(alu_result),
-    .write_data(idex_rs2_data),
+    .mem_read(exmem_mem_read),
+    .mem_write(exmem_mem_write),
+    .address(exmem_alu_result),
+    .write_data(exmem_rs2_data),
     .read_data(mem_data)
 );
 
 // Write Back MUX
 assign write_back_data =
-    jal   ? (pc_current + 4) :
-    lui   ? imm_out :
-    auipc ? (pc_current + imm_out) :
-    (mem_read ? mem_data : alu_result);
+    memwb_mem_to_reg ?
+        memwb_mem_data :
+        memwb_alu_result;
 
 endmodule
