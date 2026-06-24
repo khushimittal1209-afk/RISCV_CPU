@@ -9,6 +9,17 @@ wire [31:0] instruction;
 wire [31:0] ifid_pc;
 wire [31:0] ifid_instruction;
 
+wire [31:0] idex_rs1_data;
+wire [31:0] idex_rs2_data;
+wire [31:0] idex_imm;
+wire [4:0] idex_rd;
+wire [3:0] idex_alu_control;
+wire idex_reg_write;
+wire idex_mem_read;
+wire idex_mem_write;
+wire idex_mem_to_reg;
+wire idex_alu_src;
+
 wire reg_write;
 wire alu_src;
 wire mem_read;
@@ -42,6 +53,7 @@ pc pc_inst(
     .next_pc(next_pc),
     .pc(pc_current)
 );
+// IF/ID pipeline register
 if_id ifid_reg(
     .clk(clk),
     .reset(reset),
@@ -51,6 +63,39 @@ if_id ifid_reg(
 
     .pc_out(ifid_pc),
     .instruction_out(ifid_instruction)
+);
+// ID/EX pipeline register
+id_ex idex_reg(
+    .clk(clk),
+    .reset(reset),
+
+    .rs1_data_in(rs1_data),
+    .rs2_data_in(rs2_data),
+    .imm_in(imm_out),
+
+    .rd_in(ifid_instruction[11:7]),
+
+    .alu_control_in(alu_control),
+
+    .reg_write_in(reg_write),
+    .mem_read_in(mem_read),
+    .mem_write_in(mem_write),
+    .mem_to_reg_in(mem_read), // temporary
+    .alu_src_in(alu_src),
+
+    .rs1_data_out(idex_rs1_data),
+    .rs2_data_out(idex_rs2_data),
+    .imm_out(idex_imm),
+
+    .rd_out(idex_rd),
+
+    .alu_control_out(idex_alu_control),
+
+    .reg_write_out(idex_reg_write),
+    .mem_read_out(idex_mem_read),
+    .mem_write_out(idex_mem_write),
+    .mem_to_reg_out(idex_mem_to_reg),
+    .alu_src_out(idex_alu_src)
 );
 // Instruction Memory
 instruction_memory imem(
@@ -89,28 +134,28 @@ regfile rf(
     .clk(clk),
     .reset(reset),
     .rd_data(write_back_data),
-    .reg_write(reg_write),
+    .reg_write(idex_reg_write),
     .rs1_data(rs1_data),
     .rs2_data(rs2_data)
 );
 // ALU Input MUX
-assign alu_b = (alu_src) ? imm_out : rs2_data;
+assign alu_b = (idex_alu_src) ? idex_imm : idex_rs2_data;
 
 // ALU
 alu alu_inst(
-    .a(rs1_data),
+    .a(idex_rs1_data),
     .b(alu_b),
-    .control_signal(alu_control),
+    .control_signal(idex_alu_control),
     .result(alu_result),
     .zero(zero)
 );
 // Data Memory
 data_memory dmem(
     .clk(clk),
-    .mem_read(mem_read),
-    .mem_write(mem_write),
+    .mem_read(idex_mem_read),
+    .mem_write(idex_mem_write),
     .address(alu_result),
-    .write_data(rs2_data),
+    .write_data(idex_rs2_data),
     .read_data(mem_data)
 );
 
