@@ -36,32 +36,28 @@ begin
         mem_read = 0;
         mem_write = 0;
         case({funct7,funct3})
-
-        {7'b0000000,3'b000}:
-            alu_control = ADD;
-
-        {7'b0100000,3'b000}:
-            alu_control = SUB;
-
-        {7'b0000000,3'b110}:
-            alu_control = OR;
-
-        {7'b0000000,3'b111}:
-            alu_control = AND;
-
-        {7'b0000000,3'b100}:
-            alu_control = XOR;
-        default:
-        alu_control = ADD;
+        {7'b0000000,3'b000}:alu_control = ADD;
+        {7'b0100000,3'b000}: alu_control = SUB;
+        {7'b0000000,3'b110}:alu_control = OR;
+        {7'b0000000,3'b111}:alu_control = AND;
+        {7'b0000000,3'b100}:alu_control = XOR;
+        {7'b0000000,3'b010}: alu_control = SLT;
+        default:alu_control = ADD;
         endcase
     end
     7'b0010011:
     begin
-         reg_write = 1;
+        reg_write = 1;
         alu_src   = 1;
-        mem_read = 0;
+        mem_read  = 0;
         mem_write = 0;
-        alu_control = ADD;
+        case(funct3)
+        3'b000: alu_control = ADD; // ADDI
+        3'b111: alu_control = AND; // ANDI
+        3'b110: alu_control = OR;  // ORI
+        3'b100: alu_control = XOR; // XORI
+        default:alu_control = ADD;
+        endcase
     end
     7'b0000011:
     begin
