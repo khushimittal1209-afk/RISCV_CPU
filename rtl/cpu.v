@@ -11,7 +11,7 @@ wire reg_write;
 wire alu_src;
 wire mem_read;
 wire mem_write;
-wire [2:0] alu_control;
+wire [3:0] alu_control;
 wire branch;
 wire zero;
 

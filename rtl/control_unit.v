@@ -8,7 +8,7 @@ module control_unit(
     output reg alu_src,
     output reg mem_read,
     output reg mem_write,
-    output reg [2:0] alu_control
+    output reg [3:0] alu_control
 );parameter ADD = 3'b000,
           SUB = 3'b001,
           OR  = 3'b010,
