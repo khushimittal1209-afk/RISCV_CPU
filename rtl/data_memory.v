@@ -8,6 +8,9 @@ module data_memory(
 );
 
 reg [31:0] memory [0:255];
+initial begin
+    memory[0] = 32'd25;
+end
 
 // Write (SW)
 always @(posedge clk)

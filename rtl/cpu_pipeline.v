@@ -9,6 +9,10 @@ wire [31:0] instruction;
 wire [31:0] ifid_pc;
 wire [31:0] ifid_instruction;
 
+wire pc_write;
+wire ifid_write;
+wire control_mux;
+
 wire [31:0] idex_rs1_data;
 wire [31:0] idex_rs2_data;
 wire [31:0] idex_imm;
@@ -71,6 +75,7 @@ assign next_pc =jal ? (pc_current + imm_out) :branch_taken ? (pc_current + imm_o
 pc pc_inst(
     .clk(clk),
     .reset(reset),
+    .pc_write(pc_write),
     .next_pc(next_pc),
     .pc(pc_current)
 );
@@ -78,6 +83,7 @@ pc pc_inst(
 if_id ifid_reg(
     .clk(clk),
     .reset(reset),
+    .ifid_write(ifid_write),
 
     .pc_in(pc_current),
     .instruction_in(instruction),
@@ -89,6 +95,7 @@ if_id ifid_reg(
 id_ex idex_reg(
     .clk(clk),
     .reset(reset),
+    .control_mux(control_mux),
 
     .rs1_data_in(rs1_data),
     .rs2_data_in(rs2_data),
@@ -181,6 +188,21 @@ forwarding_unit fu(
 
     .forward_a(forward_a),
     .forward_b(forward_b)
+);
+//hazard detection unit
+hazard_detection_unit hdu(
+
+    .idex_mem_read(idex_mem_read),
+
+    .idex_rd(idex_rd),
+
+    .ifid_rs1(ifid_instruction[19:15]),
+    .ifid_rs2(ifid_instruction[24:20]),
+
+    .pc_write(pc_write),
+    .ifid_write(ifid_write),
+    .control_mux(control_mux)
+
 );
 // Instruction Memory
 instruction_memory imem(
