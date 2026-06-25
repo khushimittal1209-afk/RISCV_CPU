@@ -10,7 +10,7 @@ output [31:0]  rs2_data
 ); 
 reg [31:0]  reg_mem [31:0] ;
 integer i;
-always @(negedge clk)
+always @(posedge clk)
 begin
     if(reset) 
     for(i=0;i<32;i=i+1) reg_mem[i] <= 32'b0;

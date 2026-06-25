@@ -6,7 +6,7 @@ module instruction_memory(
 reg [31:0] memory [0:255];
 
 initial begin
-    $readmemh("tests/forwarding_test.mem", memory);
+    $readmemh("tests/memory_test.mem", memory);
 end
 assign instruction = memory[address[9:2]];
 

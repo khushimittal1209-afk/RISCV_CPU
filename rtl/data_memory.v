@@ -6,12 +6,15 @@ module data_memory(
     input [31:0] write_data,
     output reg [31:0] read_data
 );
-
+integer i;
 reg [31:0] memory [0:255];
 initial begin
+    
+    for(i=0;i<256;i=i+1)
+        memory[i] = 32'b0;
+
     memory[0] = 32'd25;
 end
-
 // Write (SW)
 always @(posedge clk)
 begin

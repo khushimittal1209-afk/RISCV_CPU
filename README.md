@@ -219,3 +219,216 @@ The forwarding unit and pipeline operated correctly after the timing fix.
 - Pipeline bugs are not always caused by forwarding or hazard detection logic. Register file timing is equally important.
 - Cycle-by-cycle signal monitoring proved to be the most effective debugging technique for identifying the issue.
 - Writing the register file on the negative clock edge is a common educational technique that avoids same-cycle read-after-write conflicts in simple pipelined processor implementations.
+- # Known Limitations
+
+## 1. Store Data Forwarding Not Implemented
+
+### Overview
+
+The processor currently supports:
+
+- ✅ Arithmetic (R-type) instructions
+- ✅ Immediate (I-type) instructions
+- ✅ Load (`LW`)
+- ✅ Store (`SW`)
+- ✅ Branch instructions (`BEQ`, `BNE`)
+- ✅ Hazard Detection (Load-Use Hazard)
+- ✅ Data Forwarding (EX/MEM → EX and MEM/WB → EX)
+- ✅ Branch Flush
+
+However, **Store Data Forwarding has not been implemented**.
+
+---
+
+## Why This Limitation Exists
+
+The forwarding unit only forwards operands that are used by the ALU.
+
+Current forwarding path:
+
+```
+           EX/MEM
+              │
+              ▼
+          ALU Input A
+
+           MEM/WB
+              │
+              ▼
+          ALU Input A
+
+
+           EX/MEM
+              │
+              ▼
+          ALU Input B
+
+           MEM/WB
+              │
+              ▼
+          ALU Input B
+```
+
+A **Store (`SW`) instruction** does not write the value coming from the ALU to memory.
+
+Instead, it writes the value stored in **`rs2_data`** directly to the Data Memory.
+
+```
+Register File
+      │
+      ▼
+  rs2_data
+      │
+      ▼
+ ID/EX Register
+      │
+      ▼
+ EX/MEM Register
+      │
+      ▼
+ Data Memory (write_data)
+```
+
+Since this path is **outside the forwarding network**, newly computed register values cannot be forwarded to the Store instruction.
+
+---
+
+## Example
+
+The following program demonstrates the limitation.
+
+```assembly
+addi x1, x0, 5
+sw   x1, 0(x0)
+```
+
+### Pipeline Execution
+
+| Cycle | ADDI | SW |
+|-------|------|----|
+| IF | Fetch | |
+| ID | Decode | Reads x1 |
+| EX | Execute | Address Calculation |
+| MEM | Memory | Store |
+| WB | Writes x1 = 5 | |
+
+The problem is that the `SW` instruction reads `x1` during the **ID stage**, while the `ADDI` instruction writes `x1` only during the **WB stage**.
+
+Therefore, `SW` reads the **old value (0)** instead of **5**.
+
+---
+
+## Current Solution
+
+The current implementation requires inserting **NOPs** between the instruction producing the data and the Store instruction.
+
+Example:
+
+```assembly
+addi x1, x0, 5
+
+nop
+nop
+nop
+nop
+
+sw x1, 0(x0)
+```
+
+The NOPs allow the ADDI instruction to complete the Write Back stage before the Store instruction reads the register file.
+
+---
+
+## Load Instructions
+
+Load instructions (`LW`) work correctly.
+
+Example:
+
+```assembly
+lw x1, 0(x0)
+```
+
+Pipeline flow:
+
+```
+Memory
+   │
+   ▼
+MEM Stage
+   │
+   ▼
+MEM/WB Register
+   │
+   ▼
+Write Back MUX
+   │
+   ▼
+Register File
+```
+
+The processor correctly:
+
+- Reads data from Data Memory
+- Passes it through the MEM/WB pipeline register
+- Selects it using the Write Back MUX
+- Writes it into the destination register
+
+Verified through simulation.
+
+---
+
+## Future Improvement
+
+To eliminate this limitation, Store Data Forwarding can be implemented.
+
+Forwarding sources:
+
+- EX/MEM pipeline register
+- MEM/WB pipeline register
+
+Destination:
+
+```
+Data Memory
+     ▲
+     │
+write_data
+```
+
+This allows Store instructions to use the latest value even before it is written back into the Register File.
+
+---
+
+# Current Processor Status
+
+| Feature | Status |
+|----------|--------|
+| Program Counter | ✅ |
+| Instruction Fetch | ✅ |
+| Register File | ✅ |
+| Immediate Generator | ✅ |
+| ALU | ✅ |
+| Control Unit | ✅ |
+| IF/ID Pipeline Register | ✅ |
+| ID/EX Pipeline Register | ✅ |
+| EX/MEM Pipeline Register | ✅ |
+| MEM/WB Pipeline Register | ✅ |
+| Data Memory | ✅ |
+| Load (`LW`) | ✅ |
+| Store (`SW`) | ✅ |
+| Data Forwarding (EX/MEM → EX) | ✅ |
+| Data Forwarding (MEM/WB → EX) | ✅ |
+| Load Hazard Detection | ✅ |
+| Pipeline Stall | ✅ |
+| Branch Flush | ✅ |
+| Branch Instructions (`BEQ`, `BNE`) | ✅ |
+| Store Data Forwarding | ❌ Not Implemented |
+
+---
+
+## Conclusion
+
+The processor successfully implements a functional **5-stage pipelined RISC-V CPU** with hazard detection, forwarding, branch handling, and memory operations.
+
+The only known architectural limitation is the absence of **Store Data Forwarding**, which requires inserting NOP instructions before certain Store operations that depend on recently computed register values. This limitation does not affect processor correctness when appropriate pipeline spacing is maintained and can be removed in future revisions by extending the forwarding network to the Data Memory write path.
