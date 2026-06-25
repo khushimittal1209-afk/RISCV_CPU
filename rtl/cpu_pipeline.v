@@ -59,6 +59,12 @@ wire [31:0] alu_in2_pre_mux;
 
 wire [31:0] imm_out;
 
+wire idex_branch;
+wire idex_branch_ne;
+wire idex_jal;
+
+wire [31:0] idex_pc;
+
 wire [31:0] rs1_data;
 wire [31:0] rs2_data;
 
@@ -69,8 +75,15 @@ wire [31:0] mem_data;
 wire [31:0] write_back_data;
 // PC
 wire branch_taken;
-assign branch_taken =(branch    && zero) ||(branch_ne && !zero);
-assign next_pc =jal ? (pc_current + imm_out) :branch_taken ? (pc_current + imm_out) :(pc_current + 4);
+wire flush;
+assign flush = branch_taken;
+assign branch_taken =
+    (idex_branch && zero) ||
+    (idex_branch_ne && !zero);
+assign next_pc =
+    idex_jal ? (idex_pc + idex_imm) :
+    branch_taken ? (idex_pc + idex_imm) :
+    (pc_current + 4);
 
 pc pc_inst(
     .clk(clk),
@@ -78,12 +91,14 @@ pc pc_inst(
     .pc_write(pc_write),
     .next_pc(next_pc),
     .pc(pc_current)
+    
 );
 // IF/ID pipeline register
 if_id ifid_reg(
     .clk(clk),
     .reset(reset),
     .ifid_write(ifid_write),
+    .flush(flush),
 
     .pc_in(pc_current),
     .instruction_in(instruction),
@@ -95,7 +110,15 @@ if_id ifid_reg(
 id_ex idex_reg(
     .clk(clk),
     .reset(reset),
-    .control_mux(control_mux),
+    .control_mux(control_mux || flush),
+    .branch_in(branch),
+    .branch_ne_in(branch_ne),
+    .jal_in(jal),
+    .pc_in(ifid_pc),
+    .branch_out(idex_branch),
+    .branch_ne_out(idex_branch_ne),
+    .jal_out(idex_jal),
+    .pc_out(idex_pc),
 
     .rs1_data_in(rs1_data),
     .rs2_data_in(rs2_data),
