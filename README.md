@@ -398,14 +398,6 @@ RISCV_CPU/
 | `waveforms/` | Generated VCD waveform files used for debugging and timing analysis in GTKWave.                                          |
 | `docs/`      | Documentation assets such as architecture diagrams, datapath figures, screenshots, and additional project illustrations. |
 
----
-
-**Next Section:** *Implemented Instructions, Hazard Handling, Branch Handling, Pipeline Registers, and detailed RTL module documentation.*
-
-```
-```
-````markdown
----
 
 # Implemented Instructions
 
@@ -908,11 +900,6 @@ MEM/WB Register
 
 This ensures that each instruction carries its own control information as it progresses through the pipeline, allowing multiple instructions to execute concurrently without interfering with one another.
 
----
-
-**Next Section:** Detailed RTL Module Documentation (`pc.v`, `instruction_memory.v`, `control_unit.v`, `regfile.v`, `imm_gen.v`, `alu.v`, `forwarding_unit.v`, `hazard_detection_unit.v`, all pipeline registers, `data_memory.v`, and `cpu_pipeline.v`).
-````
-````markdown
 ---
 
 # RTL Module Description
@@ -1601,8 +1588,7 @@ The final implementation combines these verified modules into a cohesive five-st
 ---
 
 **Next Section:** Simulation, Testing Methodology, Example Outputs, Debugging Case Studies, Challenges Faced, Known Limitations, Future Improvements, Skills Demonstrated, and How to Run.
-````
-````markdown
+
 ---
 
 # Simulation
@@ -2104,9 +2090,6 @@ The modular organization of the current RTL allows these enhancements to be inco
 
 ---
 
-**Next Section:** Tools Used, Skills Demonstrated, Learning Outcomes, How to Run, Screenshots, References, License, and Final Project Summary.
-````
-````markdown
 ---
 
 # Tools Used
